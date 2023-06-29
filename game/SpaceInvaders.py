@@ -31,8 +31,8 @@ class SpaceInvaders():
         self.na = 4
 
         # nombre de pixels en x et y
-        self.nx = 16
-        self.ny = 10
+        self.nx = 32
+        self.ny = 32
 
         # initializing pygame
         pygame.init()
@@ -184,6 +184,8 @@ class SpaceInvaders():
         """Execute une action et renvoir l'état suivant, la récompense perçue
         et un booléen indiquant si la partie est terminée ou non.
         """
+        pygame.event.pump()
+
         is_done = False
         reward = 0
 
@@ -197,7 +199,7 @@ class SpaceInvaders():
         if action == 2:  # FIRE
             self.player_Xchange = 0
             # Fixing the change of direction of bullet
-            if self.bullet_state is "rest":
+            if self.bullet_state == "rest":
                 self.bullet_X = self.player_X
                 self.move_bullet(self.bullet_X, self.bullet_Y)
         if action == 3:  # NO ACTION
@@ -212,7 +214,7 @@ class SpaceInvaders():
         if self.bullet_Y <= 0:
             self.bullet_Y = 600
             self.bullet_state = "rest"
-        if self.bullet_state is "fire":
+        if self.bullet_state == "fire":
             self.move_bullet(self.bullet_X, self.bullet_Y)
             self.bullet_Y -= self.bullet_Ychange
 

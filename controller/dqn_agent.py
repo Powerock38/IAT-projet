@@ -9,6 +9,12 @@ import time
 from .epsilon_profile import EpsilonProfile
 from game.SpaceInvaders import SpaceInvaders
 
+if torch.cuda.is_available():
+  device = torch.device("cuda")
+else:
+  device = torch.device("cpu")
+
+print(device)
 
 class DQNAgent:
     """
@@ -136,10 +142,10 @@ class DQNAgent:
                     # Copie le réseau de neurones courant dans le réseau cible
                     self.hard_update()
 
-            n_ckpt = 10
-
-            #
             print("episode time: ", time.time() - start_time)
+
+
+            # n_ckpt = 10
             # if episode % DQNAgent.TEST_FREQUENCY == DQNAgent.TEST_FREQUENCY - 1:
             #     test_score, test_extra_steps = self.run_tests(env, 100, max_steps)
             #     # train score: %.1f, mean steps: %.1f, test score: %.1f, test extra steps: %.1f,
@@ -147,12 +153,12 @@ class DQNAgent:
             #     print('Episode: %5d/%5d, Test success ratio: %.2f, Epsilon: %.2f, Time: %.1f'
             #           % (episode + 1, n_episodes, np.sum(test_extra_steps == 0) / 100, self.epsilon, time.time() - start_time))
 
-        n_test_runs = 100
-        test_score, test_extra_steps = self.run_tests(env, n_test_runs, max_steps)
+        # n_test_runs = 100
+        # test_score, test_extra_steps = self.run_tests(env, n_test_runs, max_steps)
         # for k in range(n_test_runs):
         #     print(test_extra_steps[k])
-        print('Final test score: %.1f' % test_score)
-        print('Final test success ratio: %.2f' % (np.sum(test_extra_steps == 0) / n_test_runs))
+        # print('Final test score: %.1f' % test_score)
+        # print('Final test success ratio: %.2f' % (np.sum(test_extra_steps == 0) / n_test_runs))
 
     def updateQ(self, state, action, reward, next_state, terminal):
         """ Cette méthode utilise une transition pour mettre à jour la fonction de valeur Q de l'agent.
@@ -186,8 +192,8 @@ class DQNAgent:
             c = np.random.choice(self.replay_memory_size, self.minibatch_size)
 
             # Récupère les batch de données associés
-            x_batch, a_batch, r_batch, y_batch, t_batch = torch.from_numpy(self.Ds[c]), torch.from_numpy(
-                self.Da[c]), torch.from_numpy(self.Dr[c]),  torch.from_numpy(self.Dsn[c]), torch.from_numpy(self.Dt[c])
+            x_batch, a_batch, r_batch, y_batch, t_batch = torch.from_numpy(self.Ds[c]).to(device), torch.from_numpy(
+                self.Da[c]).to(device), torch.from_numpy(self.Dr[c]).to(device),  torch.from_numpy(self.Dsn[c]).to(device), torch.from_numpy(self.Dt[c]).to(device)
 
             # Calcul de la valeur courante
             current_value = self.policy_net(x_batch).gather(1, a_batch.max(1).indices.unsqueeze(1)).squeeze(1)
@@ -222,7 +228,7 @@ class DQNAgent:
         :param state: L'état courant
         :return: L'action gourmande
         """
-        return self.policy_net(torch.FloatTensor(state).unsqueeze(0)).argmax()
+        return self.policy_net(torch.FloatTensor(state).unsqueeze(0).to(device)).argmax()
 
     def hard_update(self):
         """ Cette fonction copie le réseau de neurones
@@ -235,21 +241,22 @@ class DQNAgent:
         for target_param, local_param in zip(self.target_net.parameters(), self.policy_net.parameters()):
             target_param.data.copy_(tau*local_param.data + (1.0 - tau) * target_param.data)
 
-    def run_tests(self, env, n_runs, max_steps):
-        test_score = 0.
-        extra_steps = np.zeros((n_runs, 2))
-        for k in range(n_runs):
-            s = env.reset()
-            for t in range(max_steps):
-                q = self.policy_net(torch.FloatTensor(s).unsqueeze(0))
-                # greedy action with random tie break
-                a = np.random.choice(np.where(q[0] == q[0].max())[0])
-                sn, r, terminal = env.step(a)
-                test_score += r
-                if terminal:
-                    break
-                s = sn
-            extra_steps[k] = t + 1 - env.shortest_length, env.shortest_length
-        order = extra_steps[:, 0].argsort()
-        extra_steps = extra_steps[order]
-        return test_score / n_runs, extra_steps
+    # def run_tests(self, env, n_runs, max_steps):
+    #     test_score = 0.
+    #     extra_steps = np.zeros((n_runs, 2))
+    #     for k in range(n_runs):
+    #         s = env.reset()
+    #         for t in range(max_steps):
+    #             q = self.policy_net(torch.FloatTensor(s).unsqueeze(0).to(device))
+    #             q = torch.Tensor.cpu(q).detach().numpy()
+    #             # greedy action with random tie break
+    #             a = np.random.choice(np.where(q[0] == q[0].max())[0])
+    #             sn, r, terminal = env.step(a)
+    #             test_score += r
+    #             if terminal:
+    #                 break
+    #             s = sn
+    #         extra_steps[k] = t + 1 - env.shortest_length, env.shortest_length
+    #     order = extra_steps[:, 0].argsort()
+    #     extra_steps = extra_steps[order]
+    #     return test_score / n_runs, extra_steps
