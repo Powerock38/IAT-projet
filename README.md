@@ -1,30 +1,23 @@
 # IAT-projet
-Welcome in the github designed for the IAT-project 2022.
 
-## Setup
+Based on https://github.com/aurelienDelageInsaLyon/IAT-projet
 
-1. Get the source code by cloning this github locally
-```bash
-git clone https://github.com/aurelienDelageInsaLyon/IAT-projet
-cd IAT-projet
-```
-
-2. Install the dependancies
+Install
 ```bash
 pip3 install -r requirements.txt
 ```
 
-3. Play the game 
+Train a new model (hyperparameters in run_game.py)
 ```bash
 python3 run_game.py
 ```
 
-You can move the ship using the keys ← et → of your keyboard and fire with space.
+Run with an existing model
+```bash
+python3 run_game.py <model file>
+```
 
-## Read the subject
-
-A file `subject.pdf` containing the walkthrough of the project is available.
-
-## Start coding !
-
-Gl & hf
+Run with random agent
+```bash
+python3 run_game.py random
+```

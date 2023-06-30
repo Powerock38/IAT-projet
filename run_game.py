@@ -8,6 +8,13 @@ from game.SpaceInvaders import SpaceInvaders
 import torch
 import time
 
+if torch.cuda.is_available():
+  device = torch.device("cuda")
+else:
+  device = torch.device("cpu")
+
+print(device)
+
 def main():
 
     game = SpaceInvaders(display=True)
@@ -36,7 +43,7 @@ def main():
         controller = RandomAgent(4)
     elif model_name:
         print('loading model', model_name)
-        model = torch.load(model_name)
+        model = torch.load(model_name, map_location=device)
     else:
         model = CNN(game.nx, game.ny, game.na)
 

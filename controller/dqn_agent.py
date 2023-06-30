@@ -14,8 +14,6 @@ if torch.cuda.is_available():
 else:
   device = torch.device("cpu")
 
-print(device)
-
 class DQNAgent:
     """
     Cette classe d'agent représente un agent utilisant l'algorithme DQN pour mettre
