@@ -194,7 +194,7 @@ class SpaceInvaders():
 
         return self.get_state()
 
-    def step(self, action):
+    def step(self, action, skip_get_state=False):
         """Execute une action et renvoir l'état suivant, la récompense perçue
         et un booléen indiquant si la partie est terminée ou non.
         """
@@ -269,7 +269,10 @@ class SpaceInvaders():
         #if self.display:
         #    self.render()
 
-        return self.get_state(), reward, is_done
+        if not skip_get_state:
+            return self.get_state(), reward, is_done
+        
+        return None, reward, is_done
 
     def render(self):
         self.show_score(self.scoreX, self.scoreY)

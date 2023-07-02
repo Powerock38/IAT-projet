@@ -78,6 +78,7 @@ def main():
     while not is_done and n_step_test > 0:
         if frame_skip_counter < frame_skip_rate:
             frame_skip_counter += 1
+            state, reward, is_done = game.step(action, skip_get_state=True)
             continue
 
         action = controller.select_action(state)
