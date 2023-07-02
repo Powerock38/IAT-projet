@@ -61,6 +61,7 @@ def main():
     if not model_name:
         print('learning')
         controller.learn(game, n_episodes, max_steps, frame_skip_rate)
+        controller.epsilon = 0.0
         print('done learning')
         torch.save(controller.policy_net, 'model{}.pt'.format(str(time.time())))
         torch.save(controller.target_net, 'target{}.pt'.format(str(time.time())))
@@ -70,7 +71,7 @@ def main():
     is_done = False
     n_step_test = 5000
     total_reward = 0
-    
+
     while not is_done and n_step_test > 0:
         action = controller.select_action(state)
 
