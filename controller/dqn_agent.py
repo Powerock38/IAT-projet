@@ -105,6 +105,8 @@ class DQNAgent:
         for episode in range(n_episodes):
             start_time = time.time()
 
+            print("starting new episode, epsilon =", self.epsilon, "episode =", episode, "/", n_episodes, "score = ", env.score_val)
+
             # Reinitialise l'environnement
             state = env.reset()
             # Execute K steps

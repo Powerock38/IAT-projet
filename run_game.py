@@ -27,9 +27,11 @@ def main():
     eps_profile = EpsilonProfile(1.0, 0.1)
     final_exploration_episode = 1000
     batch_size = 32
-    replay_memory_size = 1000
+    replay_memory_size = 100
     target_update_frequency = 100
     tau = 1.0
+
+    frame_skip_rate = 10
 
     if len(sys.argv) > 1:
         model_name = sys.argv[1]
@@ -68,8 +70,19 @@ def main():
     is_done = False
     n_step_test = 5000
     total_reward = 0
+    
+    frame_skip_counter = 0
+
+    action = 3
+    
     while not is_done and n_step_test > 0:
+        if frame_skip_counter < frame_skip_rate:
+            frame_skip_counter += 1
+            continue
+
         action = controller.select_action(state)
+
+        frame_skip_counter = 0  
         state, reward, is_done = game.step(action)
         #sleep(0.0001)
         n_step_test -= 1

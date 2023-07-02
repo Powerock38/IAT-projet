@@ -21,18 +21,24 @@ def getURL(filename):
 
 class SpaceInvaders():
 
-    NO_INVADERS = 3  # Nombre d'aliens
+    NO_INVADERS = 5  # Nombre d'aliens
 
     def __init__(self, display: bool = False):
         # player
         self.display = display
 
+        self.scaled_surface = None
+        self.scaled_surface_display = None
+
         # nombre d'actions (left, right, fire, no_action)
         self.na = 4
 
         # nombre de pixels en x et y
-        self.nx = 32
-        self.ny = 32
+        self.nx = 18
+        self.ny = 12
+
+        # preview size factor
+        self.preview_size_factor = 8
 
         # initializing pygame
         pygame.init()
@@ -103,10 +109,13 @@ class SpaceInvaders():
 
         # get screen as dumb grayscale
         screen = pygame.surfarray.array3d(self.screen)
-        screen = screen[:, :, 0]
+        #screen = screen[:, :, 0] # get only one channel, the red one
+
         screen_surface = pygame.surfarray.make_surface(screen)
 
-        # the player is on line 590
+        #screen_surface = self.screen
+
+        # the player is on line 575
         player_line = screen[:, 575]
 
         # get the first and last pixel of the player in the line
@@ -121,22 +130,27 @@ class SpaceInvaders():
 
         #print("player_position_x", player_position_x)
 
-        scaled_surface = pygame.transform.scale(screen_surface, (self.nx, self.ny))
+        if self.scaled_surface is None:
+            self.scaled_surface = pygame.Surface((self.nx, self.ny)).convert(screen_surface)
+        pygame.transform.scale(screen_surface, (self.nx, self.ny), self.scaled_surface)
 
         # draw the player position on the scaled surface
         player_position_x_scaled = int(player_position_x * self.nx / self.screen_width)
-        pygame.draw.rect(scaled_surface, (255, 255, 255), (player_position_x_scaled, self.ny - 1, 1, 1))
+        pygame.draw.rect(self.scaled_surface, (255, 0, 0), (player_position_x_scaled, self.ny - 1, 1, 1))
+
+        if self.scaled_surface_display is None:
+            self.scaled_surface_display = pygame.Surface((self.nx * self.preview_size_factor, self.ny * self.preview_size_factor)).convert(screen_surface)
 
         # draw the scaled surface
-        scaled_surface_display = pygame.transform.scale(scaled_surface, (80, 60))
+        pygame.transform.scale(self.scaled_surface, (self.scaled_surface_display.get_width(), self.scaled_surface_display.get_height()), self.scaled_surface_display)
+        self.screen.blit(self.scaled_surface_display, (0, self.screen_height - self.scaled_surface_display.get_height()))
 
-        self.screen.blit(scaled_surface_display, (0, self.screen_height - 60))
         # draw stroke around the scaled surface
-        pygame.draw.rect(self.screen, (255, 255, 255), (0, self.screen_height - 60, 80, 60), 1)
+        # pygame.draw.rect(self.screen, (255, 255, 255), (0, self.screen_height - 60, 80, 60), 1)
 
-        pygame.display.update()
-        img = pygame.surfarray.array3d(scaled_surface)
-        img = img[:, :, 0]
+        self.render()
+        img = pygame.surfarray.array3d(self.scaled_surface)
+        img = img[:, :, 0] # get only one channel, the red one
         reshaped = img.reshape((1, self.nx, self.ny))
 
         return reshaped
@@ -252,8 +266,8 @@ class SpaceInvaders():
 
         self.move_player(self.player_X, self.player_Y)
 
-        if self.display:
-            self.render()
+        #if self.display:
+        #    self.render()
 
         return self.get_state(), reward, is_done
 
