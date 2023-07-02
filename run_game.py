@@ -31,7 +31,7 @@ def main():
     target_update_frequency = 100
     tau = 1.0
 
-    frame_skip_rate = 10
+    frame_skip_rate = 9
 
     if len(sys.argv) > 1:
         model_name = sys.argv[1]
@@ -60,7 +60,7 @@ def main():
 
     if not model_name:
         print('learning')
-        controller.learn(game, n_episodes, max_steps)
+        controller.learn(game, n_episodes, max_steps, frame_skip_rate)
         print('done learning')
         torch.save(controller.policy_net, 'model{}.pt'.format(str(time.time())))
         torch.save(controller.target_net, 'target{}.pt'.format(str(time.time())))
@@ -71,19 +71,9 @@ def main():
     n_step_test = 5000
     total_reward = 0
     
-    frame_skip_counter = 0
-
-    action = 3
-    
     while not is_done and n_step_test > 0:
-        if frame_skip_counter < frame_skip_rate:
-            frame_skip_counter += 1
-            state, reward, is_done = game.step(action, skip_get_state=True)
-            continue
-
         action = controller.select_action(state)
 
-        frame_skip_counter = 0  
         state, reward, is_done = game.step(action)
         #sleep(0.0001)
         n_step_test -= 1

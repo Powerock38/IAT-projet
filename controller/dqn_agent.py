@@ -82,7 +82,7 @@ class DQNAgent:
         self.d = 0     # counter for storing in D
         self.ds = 0    # total number of steps
 
-    def learn(self, env: SpaceInvaders, n_episodes, max_steps):
+    def learn(self, env: SpaceInvaders, n_episodes, max_steps, frame_skip_rate=4):
         """Cette méthode exécute l'algorithme de q-learning.
         Il n'y a pas besoin de la modifier. Simplement la comprendre et faire le parallèle avec le cours.
 
@@ -109,8 +109,18 @@ class DQNAgent:
 
             # Reinitialise l'environnement
             state = env.reset()
+
+            action = 3
+            frame_skip_counter = 0
+
             # Execute K steps
             for step in range(max_steps):
+                if frame_skip_counter < frame_skip_rate:
+                    frame_skip_counter += 1
+                    _, reward, is_done = env.step(action, skip_get_state=True)
+                    continue
+
+                frame_skip_counter = 0 # reset frame skip counter
                 # Selectionne une action
                 action = self.select_action(state)
 

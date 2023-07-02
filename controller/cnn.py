@@ -22,9 +22,11 @@ class CNN(nn.Module):
         n_neurons = 64
 
         self.layers = nn.Sequential(
-            nn.Conv2d(1, n_neurons, 3, stride=1, padding="same", bias=True).to(device),
+            nn.Conv2d(1, n_neurons, 9, stride=1, padding="same", bias=True).to(device),
             nn.ReLU().to(device),
-            nn.Conv2d(n_neurons, n_neurons, 3, stride=1, padding="same", bias=True).to(device),
+            nn.Conv2d(n_neurons, n_neurons, 5, stride=1, padding="same", bias=True).to(device),
+            nn.ReLU().to(device),
+             nn.Conv2d(n_neurons, n_neurons, 3, stride=1, padding="same", bias=True).to(device),
             nn.ReLU().to(device),
             nn.Flatten().to(device),
             nn.Linear(ny * nx * n_neurons, 120).to(device),
